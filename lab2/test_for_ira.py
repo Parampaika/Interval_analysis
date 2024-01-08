@@ -118,36 +118,20 @@ print(np.linalg.cond(midA))
 
 # plot_brus(A, b, 'tet')
 
-
+# wb_1 = [0.2, 0.3, 1, 0.2]
+# x = np.zeros(A.shape[1])
+# print(min(wb_1*(b.rad - abs(b.mid - (A @ x)))))
 
 
 linear_system_plot(A, b, 'начальная ИСЛАУ')
 maxTol = tol_plot(A, b, 'Tol для начальной ИСЛАУ')
 print("maxTol: {}\n".format(maxTol))
-max = ip.linear.Tol(A, b, maxQ=True)
-ive = ip.linear.ive(A, b)
-rve = ive * np.linalg.norm(b.mid) / np.linalg.norm([max[1][0], max[1][1]])
-print("ive: {}".format(ive))
-print("rve: {}".format(rve))
-
-print("max ", max)
-
-# x = np.zeros(A.shape[1])
-print("++++++++++++++++++++++")
-res_1 = b.rad - (b.mid - (A @ max[1])).mag
-print("шо то написал сначала\n",  res_1)
-print("++++++++++++++++++++++")
-
-
 
 K = 1
 bEvenCorrected = b_correction_even(b, K)
 print("Равномерное уширение b: {}".format(bEvenCorrected.data))
 maxTolBCorrected = tol_plot(A, bEvenCorrected, 'Tol для системы с равномерным уширением правой части', True)
 print("maxTol для равномерного уширения: {}\n".format(maxTolBCorrected))
-max = ip.linear.Tol(A, bEvenCorrected, maxQ=True)
-res_1 = bEvenCorrected.rad - (bEvenCorrected.mid - (A @ max[1])).mag
-print("шо то написал потом\n", res_1)
 
 K = 3
 weightsB = [0.5, 0.1, 1, 0.5]
@@ -155,9 +139,6 @@ bUnevenCorrected = b_correction_uneven(b, K, weightsB)
 print("Неравномерное уширение b: {}".format(bUnevenCorrected.data))
 maxTolBCorrected = tol_plot(A, bUnevenCorrected, 'Tol для системы с неравномерным уширением правой части', True)
 print("maxTol для неравномерного уширения: {}\n".format(maxTolBCorrected))
-max = ip.linear.Tol(A, bUnevenCorrected, maxQ=True)
-res_1 = bUnevenCorrected.rad - (bUnevenCorrected.mid - (A @ max[1])).mag
-print("шо то написал очень потом\n",  res_1)
 
 K = 1
 midE = np.zeros((4, 2))
@@ -168,8 +149,5 @@ ACorrected = A_correction(A, K, weightsA, E)
 print("Изначальная матрица A: \n{}\n".format(A.data))
 print("Скорректированная матрица A: \n{}".format(ACorrected.data))
 maxTolACorrected = tol_plot(ACorrected, b, 'Tol для системы со скорректированной левой частью', True)
-max = ip.linear.Tol(ACorrected, b, maxQ=True)
-res_1 = b.rad - (b.mid - (ACorrected @ max[1])).mag
-print("шо то написал в конце\n",  res_1)
 
 plt.show()
