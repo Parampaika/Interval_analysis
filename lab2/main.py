@@ -3,10 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-
 def line(ax, coefs, res, x, y, mod):
     if coefs[0] == 0 and coefs[1] == 0:
-        return
+        return 
     if coefs[1] == 0:
         ax.plot([res / coefs[0]] * len(y), y, mod, linewidth=1.5)
     else:
@@ -41,7 +40,7 @@ def start_tol_plot(A, b, needVe=False):
             z[i][j] = ip.linear.Tol(A, b, [x[i][j], y[i][j]])
     max = ip.linear.Tol(A, b, maxQ=True)
     fig, ax = plt.subplots(figsize=(9, 5.7))
-    cs = ax.contour(x, y, z, levels=20, cmap=cm.gray)
+    cs = ax.contour(x, y, z, levels = 20, cmap=cm.gray)
     fig.colorbar(cs, ax=ax)
     ax.clabel(cs)
 
@@ -50,9 +49,9 @@ def start_tol_plot(A, b, needVe=False):
     for i in range(0, x.shape[0]):
         for j in range(0, x.shape[1]):
             f = ip.linear.Tol(A, b, [x[i][j], y[i][j]])
-            if (f >= 0):
+            if(f >= 0):
                 z[i][j] = f
-    ax.contour(x, y, z, levels=0, cmap=cm.hot, linewidths=3)
+    ax.contour(x, y, z, levels = 0, cmap=cm.hot, linewidths=3)
 
     colors = ['c', 'y', 'r', 'g']
     x = np.linspace(-1, 5, 100)
@@ -62,19 +61,16 @@ def start_tol_plot(A, b, needVe=False):
         line(ax, coefs.a, res.a, x, y, color + '-')
         line(ax, coefs.b, res.b, x, y, color + '-')
 
-    ax.plot(max[1][0], max[1][1], 'b*',
-            label='Максимум ({:.4f}, {:.4f}), значение: {:.4f}'.format(max[1][0], max[1][1], max[2]), markersize=3)
-
+    ax.plot(max[1][0], max[1][1], 'b*', label='Максимум ({:.4f}, {:.4f}), значение: {:.4f}'.format(max[1][0], max[1][1], max[2]), markersize=3)
+    
     if needVe:
         ive = ip.linear.ive(A, b)
         rve = ive * np.linalg.norm(b.mid) / np.linalg.norm([max[1][0], max[1][1]])
         print("ive: {}".format(ive))
         print("rve: {}".format(rve))
-        iveRect = plt.Rectangle((max[1][0] - ive, max[1][1] - ive), 2 * ive, 2 * ive, edgecolor='black',
-                                facecolor='none', label='Брус ive', linewidth=1.5)
+        iveRect = plt.Rectangle((max[1][0] - ive, max[1][1] - ive), 2 * ive, 2 * ive, edgecolor='black', facecolor='none', label='Брус ive', linewidth=1.5)
         plt.gca().add_patch(iveRect)
-        rveRect = plt.Rectangle((max[1][0] - rve, max[1][1] - rve), 2 * rve, 2 * rve, edgecolor='#7E2F8E',
-                                facecolor='none', label='Брус rve', linewidth=1.5)
+        rveRect = plt.Rectangle((max[1][0] - rve, max[1][1] - rve), 2 * rve, 2 * rve, edgecolor='#7E2F8E', facecolor='none', label='Брус rve', linewidth=1.5)
         plt.gca().add_patch(rveRect)
 
     return max[2]
@@ -94,7 +90,6 @@ def tol_plot(A, b, title, needVe=False):
 def b_correction_uneven(b, K, weights):
     return b + K * ip.Interval(-1, 1) * weights
 
-
 def b_correction_even(b, K):
     return b + K * ip.Interval(-1, 1)
 
@@ -106,7 +101,7 @@ def A_correction(A, K, weights, E):
     return ip.Interval(newA, newB)
 
 
-midA = np.array([[3, 5], [3, -5], [1, 0], [0, 1]])
+midA = np.array([[3,5], [3, -5], [1, 0], [0, 1]])
 radA = np.array([[1, 1], [0, 1], [0.5, 0], [0, 0.5]])
 A = ip.Interval(midA, radA, midRadQ=True)
 
@@ -118,36 +113,21 @@ print(np.linalg.cond(midA))
 
 # plot_brus(A, b, 'tet')
 
+            # wb_1 = [0.2, 0.3, 1, 0.2]
+            # x = np.zeros(A.shape[1])
+            # print(min(wb_1*(b.rad - abs(b.mid - (A @ x)))))
 
 
 
 linear_system_plot(A, b, 'начальная ИСЛАУ')
 maxTol = tol_plot(A, b, 'Tol для начальной ИСЛАУ')
 print("maxTol: {}\n".format(maxTol))
-max = ip.linear.Tol(A, b, maxQ=True)
-ive = ip.linear.ive(A, b)
-rve = ive * np.linalg.norm(b.mid) / np.linalg.norm([max[1][0], max[1][1]])
-print("ive: {}".format(ive))
-print("rve: {}".format(rve))
-
-print("max ", max)
-
-# x = np.zeros(A.shape[1])
-print("++++++++++++++++++++++")
-res_1 = b.rad - (b.mid - (A @ max[1])).mag
-print("шо то написал сначала\n",  res_1)
-print("++++++++++++++++++++++")
-
-
 
 K = 1
 bEvenCorrected = b_correction_even(b, K)
 print("Равномерное уширение b: {}".format(bEvenCorrected.data))
 maxTolBCorrected = tol_plot(A, bEvenCorrected, 'Tol для системы с равномерным уширением правой части', True)
 print("maxTol для равномерного уширения: {}\n".format(maxTolBCorrected))
-max = ip.linear.Tol(A, bEvenCorrected, maxQ=True)
-res_1 = bEvenCorrected.rad - (bEvenCorrected.mid - (A @ max[1])).mag
-print("шо то написал потом\n", res_1)
 
 K = 3
 weightsB = [0.5, 0.1, 1, 0.5]
@@ -155,9 +135,6 @@ bUnevenCorrected = b_correction_uneven(b, K, weightsB)
 print("Неравномерное уширение b: {}".format(bUnevenCorrected.data))
 maxTolBCorrected = tol_plot(A, bUnevenCorrected, 'Tol для системы с неравномерным уширением правой части', True)
 print("maxTol для неравномерного уширения: {}\n".format(maxTolBCorrected))
-max = ip.linear.Tol(A, bUnevenCorrected, maxQ=True)
-res_1 = bUnevenCorrected.rad - (bUnevenCorrected.mid - (A @ max[1])).mag
-print("шо то написал очень потом\n",  res_1)
 
 K = 1
 midE = np.zeros((4, 2))
@@ -168,8 +145,6 @@ ACorrected = A_correction(A, K, weightsA, E)
 print("Изначальная матрица A: \n{}\n".format(A.data))
 print("Скорректированная матрица A: \n{}".format(ACorrected.data))
 maxTolACorrected = tol_plot(ACorrected, b, 'Tol для системы со скорректированной левой частью', True)
-max = ip.linear.Tol(ACorrected, b, maxQ=True)
-res_1 = b.rad - (b.mid - (ACorrected @ max[1])).mag
-print("шо то написал в конце\n",  res_1)
+
 
 plt.show()
